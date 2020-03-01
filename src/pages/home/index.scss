@@ -1,0 +1,18 @@
+.movie-swiper {
+  height: 93vh;
+  .movie-name {
+    padding: 0 5px 5px 5px;
+  }
+  image, img {
+    height: 295px;
+  }
+}
+
+.cu-item {
+  .cu-card > & {
+    margin: 10px;
+  }
+  .padding {
+    padding: 0;
+  }
+}
