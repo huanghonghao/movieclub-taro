@@ -1,5 +1,5 @@
 import Taro, { Component } from '@tarojs/taro'
-import { View, Text, ScrollView } from '@tarojs/components'
+import { View, Text } from '@tarojs/components'
 import { AtButton, AtTabBar } from 'taro-ui'
 import { ClCard, ClText } from "mp-colorui";
 import './index.scss'

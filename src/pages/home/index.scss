@@ -1,11 +1,48 @@
+@import "~taro-ui/dist/style/mixins/index.scss";
+@import "~taro-ui/dist/style/variables/default.scss";
+
+.movie-main {
+  height: 100vh;
+  .at-tabs {
+    height: auto;
+  }
+}
+
 .movie-swiper {
-  height: 93vh;
+  height: 85%;
   .movie-name {
     padding: 0 5px 5px 5px;
   }
   image, img {
     height: 295px;
   }
+  .bottom-loading {
+    @include display-flex;
+    @include align-items(center);
+
+    &--center {
+      height: 100px;
+      position: relative;
+      margin-bottom: 8%;
+      margin-top: 10px;
+    }
+  }
+  .movie-card-footer {
+    position: absolute;
+    bottom: 0;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.5);
+    text-align: right;
+    width: 100%;
+    padding-right: 10px;
+    text {
+      color: white;
+    }
+  }
+}
+
+.movie-searchBar {
+  width: 500px
 }
 
 .cu-item {
