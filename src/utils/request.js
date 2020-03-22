@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro'
 import {getToken} from "./authority";
 
-const domain = 'http://www.jasonwongmovie.club:9088';
+const domain = 'https://jasonwongmovie.club:9088';
 // const domain = 'http://192.168.1.135:9088';
 
 const codeMessage = {

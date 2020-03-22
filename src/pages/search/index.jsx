@@ -67,7 +67,7 @@ export default class User extends PureComponent {
                     key={item.id}
                     title={item.title}
                     note='HD'
-                    extraText={`${item.doubanScore || 10}分`}
+                    extraText={item.kind === 4 ? item.updateSituation || '无更新' : `${item.doubanScore}分` || '无评分'}
                     onClick={() => Taro.navigateTo({url: `/pages/detail/index?${stringify({id: item.id})}`})}
                   />
                 ))}

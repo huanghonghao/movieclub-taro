@@ -55,21 +55,25 @@ export default class User extends PureComponent {
                     <Text>{movie.title || ''}</Text>
                   </View>*/}
                 </View>
-                <View className='at-col at-col-12 at-col--wrap'>
-                  <Text>导演: {movie.director || ''}</Text>
-                </View>
+                {movie.director && (
+                  <View className='at-col at-col-12 at-col--wrap'>
+                    <Text>导演: {movie.director}</Text>
+                  </View>
+                )}
                 <View className='at-col at-col-12 at-col--wrap'>
                   <Text>类型: {movie.type || ''}</Text>
                 </View>
                 <View className='at-col at-col-12 at-col--wrap'>
-                  <Text>发布时间: {movie.chinaReleaseTime || ''}</Text>
+                  <Text>发布时间: {movie.releaseTime || ''}</Text>
                 </View>
                 <View className='at-col at-col-6 at-col--wrap'>
                   <Text>国家: {movie.country || ''}</Text>
                 </View>
-                <View className='at-col at-col-6 at-col--wrap'>
-                  <Text>语言: {movie.language || ''}</Text>
-                </View>
+                {movie.language && (
+                  <View className='at-col at-col-6 at-col--wrap'>
+                    <Text>语言: {movie.language}</Text>
+                  </View>
+                )}
                 <View className='at-col at-col-6 at-col--wrap'>
                   <Text>豆瓣评分: {movie.doubanScore || ''}</Text>
                 </View>

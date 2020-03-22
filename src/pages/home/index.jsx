@@ -22,14 +22,15 @@ const defaultStatus = {
 export default class Index extends PureComponent {
   state = {
     current: 0,
-    all: defaultStatus
+    all: {...defaultStatus},
+    tvb: {...defaultStatus}
   };
 
   componentWillMount() {
   }
 
   componentDidMount() {
-    this.reload();
+    this.reload(0);
   }
 
   componentWillUnmount() {
@@ -47,13 +48,25 @@ export default class Index extends PureComponent {
     disableScroll: true,
   };
 
-  reload = () => {
-    const { all } = this.state;
-    movies({offset: 0, limit: 21}).then(data => {
-      this.setState({ all: { ...all, data, loading: false } })
-    }).catch(() => {
-      this.setState({ all: { ...all, error: true } })
-    })
+  reload = kind => {
+    switch (kind) {
+      case 0:
+        const { all } = this.state;
+        movies({offset: 0, limit: 21, kind}).then(data => {
+          this.setState({ all: { ...all, data, loading: false } })
+        }).catch(() => {
+          this.setState({ all: { ...all, error: true } })
+        });
+        break;
+      case 4:
+        const { tvb } = this.state;
+        movies({offset: 0, limit: 21, kind}).then(data => {
+          this.setState({ tvb: { ...tvb, data, loading: false } })
+        }).catch(() => {
+          this.setState({ tvb: { ...tvb, error: true } })
+        });
+        break;
+    }
   };
 
   handleClick = current => {
@@ -71,20 +84,21 @@ export default class Index extends PureComponent {
     const { detail: { current } } = e;
     switch (current) {
       case 0:
-        this.reload();
+        this.setState({tvb: {...defaultStatus}});
+        this.reload(0);
         break;
       case 1:
-        // TODO
-        this.setState({all: defaultStatus});
+        this.setState({all: {...defaultStatus}});
+        this.reload(4);
         break;
       case 2:
-        this.setState({all: defaultStatus});
+        this.setState({all: {...defaultStatus}, tvb: {...defaultStatus}});
         break;
       case 3:
-        this.setState({all: defaultStatus});
+        this.setState({all: {...defaultStatus}, tvb: {...defaultStatus}});
         break;
       case 4:
-        this.setState({all: defaultStatus});
+        this.setState({all: {...defaultStatus}, tvb: {...defaultStatus}});
         break;
     }
   };
@@ -108,7 +122,7 @@ export default class Index extends PureComponent {
                     lazyLoad
                   />
                   <View className='movie-card-footer'>
-                    <Text>{col.doubanScore || '无评'}分</Text>
+                    <Text>{col.kind === 4 ? col.updateSituation || '无更新' : `${col.doubanScore}分` || '无评分'}</Text>
                   </View>
                 </View>
               }
@@ -136,20 +150,36 @@ export default class Index extends PureComponent {
     });
   };
 
-  onScrollToLower = () => {
-    const { all } = this.state;
-    if(!all.bottomLoading) {
-      console.log('下拉加载中...');
-      this.setState({ all: { ...all, bottomLoading: true } });
-      const limit = all.limit;
-      const offset = all.offset + all.limit;
-      movies({ offset, limit }).then(data => {
-        console.log('下拉加载完成');
-        this.setState({ all: { ...all, data: [...all.data, ...data], loading: false, bottomLoading: false, offset, limit } })
-      }).catch(e => {
-        console.error(e);
-        this.setState({ all: { ...all, bottomLoading: false } })
-      });
+  onScrollToLower = kind => {
+    switch (kind) {
+      case 0:
+        const { all } = this.state;
+        if(!all.bottomLoading) {
+          this.setState({ all: { ...all, bottomLoading: true } });
+          const limit = all.limit;
+          const offset = all.offset + all.limit;
+          movies({ offset, limit, kind }).then(data => {
+            this.setState({ all: { ...all, data: [...all.data, ...data], loading: false, bottomLoading: false, offset, limit } })
+          }).catch(e => {
+            console.error(e);
+            this.setState({ all: { ...all, bottomLoading: false } })
+          });
+        }
+        break;
+      case 4:
+        const { tvb } = this.state;
+        if(!tvb.bottomLoading) {
+          this.setState({ tvb: { ...tvb, bottomLoading: true } });
+          const limit = tvb.limit;
+          const offset = tvb.offset + tvb.limit;
+          movies({ offset, limit, kind }).then(data => {
+            this.setState({ tvb: { ...tvb, data: [...tvb.data, ...data], loading: false, bottomLoading: false, offset, limit } })
+          }).catch(e => {
+            console.error(e);
+            this.setState({ tvb: { ...tvb, bottomLoading: false } })
+          });
+        }
+        break;
     }
   };
 
@@ -157,7 +187,8 @@ export default class Index extends PureComponent {
     // eslint-disable-next-line no-shadow
     const {
       current,
-      all
+      all,
+      tvb
     } = this.state;
     const errorContent =
       <View className='at-activity-indicator at-activity-indicator--center'>
@@ -172,57 +203,21 @@ export default class Index extends PureComponent {
           onSearch={() => {
             Taro.navigateTo({url: '/pages/search/index'})
           }}
-          // renderLeft={
-          //   <ClSearchBar
-          //     shape='round'
-          //     bgColor='white'
-          //     searchType='none'
-          //     placeholder='电影太多？搜索一下吧'
-          //     className='movie-searchBar'
-          //     onFocus={() => {
-          //       Taro.navigateTo({url: '/pages/search/index'})
-          //     }}
-          //   />
-          // }
         />
         <AtTabs
           current={current}
           scroll
           swipeable={false}
           tabList={[
-            {title: '全部'},
+            // {title: '全部'},
             {title: '电影'},
+            {title: 'TVB'},
             {title: '电视剧'},
             {title: '综艺'},
             {title: '动画'},
           ]}
           onClick={this.handleClick}
         >
-          {/*<AtTabsPane current={this.state.current} index={0}>
-          <TabsContent>
-            <View >全部11</View>
-          </TabsContent>
-        </AtTabsPane>
-        <AtTabsPane current={this.state.current} index={1}>
-          <TabsContent>
-            <View >电影</View>
-          </TabsContent>
-        </AtTabsPane>
-        <AtTabsPane current={this.state.current} index={2}>
-          <TabsContent>
-            电视剧
-          </TabsContent>
-        </AtTabsPane>
-        <AtTabsPane current={this.state.current} index={3}>
-          <TabsContent>
-            综艺
-          </TabsContent>
-        </AtTabsPane>
-        <AtTabsPane current={this.state.current} index={4}>
-          <TabsContent>
-            动画
-          </TabsContent>
-        </AtTabsPane>*/}
         </AtTabs>
         <Swiper
           duration={300}
@@ -237,7 +232,7 @@ export default class Index extends PureComponent {
               refresherTriggered={all.triggered}
               // onRefresherRefresh={this.onRefresherRefresh}
               refresherEnabled={false}
-              onScrollToLower={this.onScrollToLower}
+              onScrollToLower={() => this.onScrollToLower(0)}
             >
               {all.loading ?
                 (all.error ? errorContent : loadingContent) :
@@ -250,8 +245,20 @@ export default class Index extends PureComponent {
             </TabsContent>
           </SwiperItem>
           <SwiperItem>
-            <TabsContent>
-              {this.renderCard([])}
+            <TabsContent
+              refresherTriggered={tvb.triggered}
+              // onRefresherRefresh={this.onRefresherRefresh}
+              refresherEnabled={false}
+              onScrollToLower={() => this.onScrollToLower(4)}
+            >
+              {tvb.loading ?
+                (tvb.error ? errorContent : loadingContent) :
+                this.renderCard(tvb.data)}
+              {!tvb.loading ? (
+                <View className='bottom-loading bottom-loading--center'>
+                  <AtActivityIndicator mode='center' content='😫臣妾正在努力加载...' />
+                </View>
+              ) : null}
             </TabsContent>
           </SwiperItem>
           <SwiperItem>
