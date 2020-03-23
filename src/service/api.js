@@ -18,3 +18,9 @@ export async function search(title) {
     url: `/BDMovie/search?${stringify({title})}`
   })
 }
+
+export async function episodes(movieId) {
+  return request({
+    url: `/BDMovie/episodes?${stringify({movieId})}`
+  })
+}

@@ -1,6 +1,6 @@
 import Taro, { PureComponent } from '@tarojs/taro'
 import { View, Text, Image } from '@tarojs/components'
-import {parse} from 'qs';
+import {parse, stringify} from 'qs';
 import { AtTag } from 'taro-ui'
 import { ClCard, ClText, ClAccordion, ClLayout } from 'mp-colorui';
 import {detail} from "../../service/api";
@@ -89,62 +89,83 @@ export default class User extends PureComponent {
           </ClAccordion>
         </ClLayout>
         <ClLayout margin='normal' marginDirection='vertical' className='movie-link'>
-          <ClCard
-            type='full'
-            renderTitle={
-              <View className='cu_card__title-line padding'>
-                <Text>下载</Text><ClText lineSpacing={45} text='(点击复制连接到迅雷下载)' size='small' textColor='grey' />
-              </View>
-            }
-          >
-            {movie.downloadLinks &&
-            JSON.parse(movie.downloadLinks).map((item, index) => {
-              let definition;
-              if(item.startsWith('ed2k')) {
-                const filename = item.split('|')[2];
-                let regExp = new RegExp("\\.(BD|bd|HD|hd|TS|ts|DVD|dvd|TC|tc)[\\w\\W]+", 'g');
-                const group = regExp.exec(filename);
-                definition = group && group[0].substring(1) || filename;
-              } else if(item.startsWith('ftp')) {
-                const filename = item.substring(item.lastIndexOf('/') + 1);
-                let regExp = new RegExp("(BD|bd|HD|hd|TS|ts|DVD|dvd|TC|tc)[\\w\\W]+", 'g');
-                const group = regExp.exec(filename);
-                definition = group && group[0] || filename;
-              } else if(item.startsWith('magnet')) {
-                const filename = parse(item).dn;
-                let regExp = new RegExp("\\.(BD|bd|HD|hd|TS|ts|DVD|dvd|TC|tc)[\\w\\W]+", 'g');
-                const group = regExp.exec(filename);
-                definition = group && group[0].substring(1) || '未知，先复制看看吧';
-              } else {
-                let regExp = new RegExp("(BD|bd|HD|hd|TS|ts|DVD|dvd|TC|tc)\\d+P", 'g');
-                const group = regExp.exec(item);
-                definition = group && group[0] || item;
-              }
-
-              return (
-                <View key={index} className='subitem'>
-                  <AtTag
-                    active
-                    onClick={() => {
-                      Taro.setClipboardData({
-                        data: item,
-                        success: function () {
-                          Taro.showToast({
-                            title: '复制成功',
-                            icon: 'success',
-                            duration: 2000
-                          })
-                        }
-                      })
-                    }}
-                  >
-                    {definition}
-                  </AtTag>
+          {movie.downloadLinks && JSON.parse(movie.downloadLinks).length !== 0 ?
+            (<ClCard
+              type='full'
+              renderTitle={
+                <View className='cu_card__title-line padding'>
+                  <Text>下载</Text><ClText lineSpacing={45} text='(点击复制连接到迅雷下载)' size='small' textColor='grey' />
                 </View>
-              );
-            })}
-          </ClCard>
+              }
+            >
+              {movie.downloadLinks &&
+              JSON.parse(movie.downloadLinks).map((item, index) => {
+                let definition;
+                if(item.startsWith('ed2k')) {
+                  const filename = item.split('|')[2];
+                  let regExp = new RegExp("\\.(BD|bd|HD|hd|TS|ts|DVD|dvd|TC|tc)[\\w\\W]+", 'g');
+                  const group = regExp.exec(filename);
+                  definition = group && group[0].substring(1) || filename;
+                } else if(item.startsWith('ftp')) {
+                  const filename = item.substring(item.lastIndexOf('/') + 1);
+                  let regExp = new RegExp("(BD|bd|HD|hd|TS|ts|DVD|dvd|TC|tc)[\\w\\W]+", 'g');
+                  const group = regExp.exec(filename);
+                  definition = group && group[0] || filename;
+                } else if(item.startsWith('magnet')) {
+                  const filename = parse(item).dn;
+                  let regExp = new RegExp("\\.(BD|bd|HD|hd|TS|ts|DVD|dvd|TC|tc)[\\w\\W]+", 'g');
+                  const group = regExp.exec(filename);
+                  definition = group && group[0].substring(1) || '未知，先复制看看吧';
+                } else {
+                  let regExp = new RegExp("(BD|bd|HD|hd|TS|ts|DVD|dvd|TC|tc)\\d+P", 'g');
+                  const group = regExp.exec(item);
+                  definition = group && group[0] || item;
+                }
+
+                return (
+                  <View key={index} className='subitem'>
+                    <AtTag
+                      active
+                      onClick={() => {
+                        Taro.setClipboardData({
+                          data: item,
+                          success: function () {
+                            Taro.showToast({
+                              title: '复制成功',
+                              icon: 'success',
+                              duration: 2000
+                            })
+                          }
+                        })
+                      }}
+                    >
+                      {definition}
+                    </AtTag>
+                  </View>
+                );
+              })}
+            </ClCard>) : null
+          }
         </ClLayout>
+        {movie.movieId && (
+          <ClLayout padding='normal' paddingDirection='vertical'>
+            <ClCard
+              type='full'
+              title={{
+                text: '在线播放',
+                align: 'left',
+                size: 'large',
+              }}
+            >
+              <AtTag
+                active
+                onClick={() => Taro.navigateTo({url: `/pages/online/index?${stringify({movieId: movie.movieId})}`})}
+              >
+                线路一
+              </AtTag>
+            </ClCard>
+          </ClLayout>
+        )}
       </View>
     )
   }

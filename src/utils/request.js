@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro'
 import {getToken} from "./authority";
 
 const domain = 'https://jasonwongmovie.club:9088';
-// const domain = 'http://192.168.1.135:9088';
+// const domain = 'https://192.168.1.135:9088';
 
 const codeMessage = {
   401: '没有访问权限',
